@@ -43,7 +43,7 @@ def conv2Demo():
 
 
 def derivDemo():
-    img = cv2.imread('/home/hay/Desktop/master_degree/image processing/Ex2/beach.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE) / 255
     ori, mag = convDerivative(img)
 
     f, ax = plt.subplots(1, 2)
@@ -115,7 +115,7 @@ def edgeDemo():
 
 
 def houghDemo():
-    img = cv2.imread('coins.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE) / 255
     min_r, max_r = 50, 100
 
     # # TEST WITH YOUR IMPLEMENT ONLY
@@ -147,7 +147,7 @@ def houghDemo():
 
 
 def biliteralFilterDemo():
-    img = cv2.imread('/home/hay/Dropbox/master_degree/image processing/Ex2/boxMan.jpg', cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE)
     # cv2.imwrite("original_image_grayscale.jpg", img)
 
     filtered_image_CV, filtered_image_my = bilateral_filter_implement(img, 9, 8.0, 1.0)
@@ -160,13 +160,13 @@ def biliteralFilterDemo():
 
 def main():
     print("ID:", myID())
-    # conv1Demo()
-    # conv2Demo()
-    # derivDemo()
+    conv1Demo()
+    conv2Demo()
+    derivDemo()
     # blurDemo()
     # edgeDemo()
     # houghDemo()
-    biliteralFilterDemo()
+    # biliteralFilterDemo()
 
 
 if __name__ == '__main__':
