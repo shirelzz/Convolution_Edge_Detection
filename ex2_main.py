@@ -69,7 +69,7 @@ def derivDemo():
 
 
 def blurDemo():
-    img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('input/man.jpeg', cv2.IMREAD_GRAYSCALE) / 255
     k_size = 5
     b1 = blurImage1(img, k_size)
     b2 = blurImage2(img, k_size)
@@ -161,9 +161,9 @@ def biliteralFilterDemo():
 def main():
     print("ID:", myID())
     conv1Demo()
-    conv2Demo()
-    derivDemo()
-    # blurDemo()
+    # conv2Demo()
+    # derivDemo()
+    blurDemo()
     # edgeDemo()
     # houghDemo()
     # biliteralFilterDemo()

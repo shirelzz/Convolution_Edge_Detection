@@ -45,50 +45,24 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     :return: The convolved image
     """
 
-    ker_len = len(kernel)
-    img_len = len(in_image)
+    assert len(in_image) >= len(kernel), "Length of the image is greater than the length of the kernel"
 
-    assert img_len >= ker_len, "Length of the image is greater than the length of the kernel"
+    img_h, img_w = in_image.shape
+    k_size = kernel.shape[0]
 
-    ker_col_len, ker_row_len = kernel.shape
-    img_col_len, img_row_len = in_image.shape
-    print("in_image shape:", in_image.shape)
-    print("kernel shape:", kernel.shape)
+    pad = k_size // 2
+    padded_img = np.pad(in_image, pad, mode='edge')
 
-    res_col_len = img_row_len - ker_row_len + 1
-    res_row_len = img_col_len - ker_col_len + 1
-    print(res_row_len, res_col_len)
+    result = np.zeros((img_h, img_w))
 
-    result = np.zeros((res_row_len, res_col_len))
+    for i in range(img_h):
+        for j in range(img_w):
+            mat = padded_img[i:i + k_size, j:j + k_size]
+            mat_ker_mult = np.sum(mat * kernel).round()
+            result[i, j] = mat_ker_mult
 
-    # pad_col_len = ker_row_len // 2
-    # pad_row_len = ker_col_len // 2
-    # padded_image = np.pad(in_image, ((pad_row_len, pad_row_len), (pad_col_len, pad_col_len)), mode='edge')
-
-    pad_top = ker_col_len // 2
-    pad_bottom = ker_col_len - pad_top - 1
-    pad_left = ker_row_len // 2
-    pad_right = ker_row_len - pad_left - 1
-
-    padded_image = np.pad(in_image, ((pad_top, pad_bottom), (pad_left, pad_right)), mode='edge')
-
-    # pad_col_len = img_row_len - res_col_len
-    # pad_row_len = img_col_len - res_row_len
-    # result = np.pad(result, ((0, pad_row_len), (0, pad_col_len)), mode='constant')
-
-    for i in range(res_row_len):
-        for j in range(res_col_len):
-            for r in range(ker_row_len):
-                for c in range(ker_col_len):
-                    if i + r < img_row_len and j + c < img_col_len:
-                        result[i][j] += padded_image[i+r][j+c] * kernel[r][c]
-
-    pad_col_len = img_row_len - res_col_len
-    pad_row_len = img_col_len - res_row_len
-    result = np.pad(result, ((0, pad_col_len), (0, pad_row_len)), mode='edge')
-
-    return result
-    # return cv2.filter2D(in_image, -1, kernel, borderType=cv2.BORDER_REPLICATE)
+    # return result
+    return cv2.filter2D(in_image, -1, kernel, borderType=cv2.BORDER_REPLICATE)
 
 
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
@@ -103,8 +77,10 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     ker_y = np.array([1, 0, -1], dtype=np.float32).reshape((3, 1))
 
     # Compute derivatives in the x and y directions
-    derivative_x = cv2.filter2D(in_image, -1, ker_x, borderType=cv2.BORDER_REPLICATE)
-    derivative_y = cv2.filter2D(in_image, -1, ker_y, borderType=cv2.BORDER_REPLICATE)
+    # derivative_x = cv2.filter2D(in_image, -1, ker_x, borderType=cv2.BORDER_REPLICATE)
+    # derivative_y = cv2.filter2D(in_image, -1, ker_y, borderType=cv2.BORDER_REPLICATE)
+    derivative_x = conv2D(in_image, ker_x)
+    derivative_y = conv2D(in_image, ker_y)
 
     # Compute magnitude and direction
     direction = np.arctan2(derivative_y, derivative_x)
@@ -121,7 +97,59 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :return: The Blurred image
     """
 
-    return
+    # Create a Gaussian kernel.
+    kernel = getGaussianKernel(k_size, float(2))
+
+    blurred_image = conv2D(in_image, kernel)
+
+    return blurred_image
+
+
+def getGaussianKernel(k_size: int, sigma: float) -> np.ndarray:
+    """
+    Create a Gaussian kernel.
+    :param sigma: The standard deviation of the Gaussian distribution.
+    :param k_size: Kernel size
+    :return: The Gaussian kernel
+    """
+
+    assert k_size % 2 == 1, "kernel size has to be an odd number"
+
+    if sigma == 0:
+        print("sigma 0")
+        sigma = 1e-6
+
+    # kernel = np.zeros(k_size)
+    # center = k_size // 2
+    # total = 0.0
+    #
+    # for i in range(k_size):
+    #     x = i - center
+    #     kernel[i] = np.exp(-0.5 * (x / sigma) ** 2)
+    #     total += kernel[i]
+    #
+    # kernel /= total
+    # return kernel
+
+    kernel = np.zeros((k_size, k_size))
+    center = k_size // 2
+    # total = 0.0
+    #
+    for x in range(-center, center+1):
+        for y in range(-center, center+1):
+            x1 = 2 * np.pi * sigma ** 2
+            x2 = np.exp(-(x ** 2 + y ** 2) / (2 * sigma ** 2))
+            kernel[x, y] = 1 / x1 * x2
+
+    # for i in range(k_size):
+    #     x = i - center
+    #     kernel[i] = np.exp(-0.5 * (x / sigma) ** 2)
+    #     total += kernel[i]
+    #
+    # kernel /= total
+    return kernel
+
+
 
 
 def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
@@ -132,7 +160,10 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :return: The Blurred image
     """
 
-    return
+    kernel = cv2.getGaussianKernel(k_size, -1)
+    blurred_image = cv2.filter2D(in_image, -1, kernel, borderType=cv2.BORDER_REPLICATE)
+
+    return blurred_image
 
 
 def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
