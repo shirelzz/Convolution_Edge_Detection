@@ -160,13 +160,13 @@ def biliteralFilterDemo():
 
 def main():
     print("ID:", myID())
-    conv1Demo()
+    # conv1Demo()
     # conv2Demo()
     # derivDemo()
-    blurDemo()
+    # blurDemo()
     # edgeDemo()
-    # houghDemo()
-    # biliteralFilterDemo()
+    houghDemo()
+    biliteralFilterDemo()
 
 
 if __name__ == '__main__':
